@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.lambda.picture.listener.workaround">
+
+    <require>org.nuxeo.ecm.platform.picture.listeners</require>
+    <require>org.nuxeo.ecm.showcase.listener</require>
+
+    <!-- The showcase addons override the Picture and Video Listeners for bad reasons -->
+    <!-- This prevent us from being able to do it in all cases -->
+    <!-- Since there is no reason to have a hard dependency, we need to have 2 contributions -->
+
+    <extension target="org.nuxeo.ecm.core.event.EventServiceComponent"
+               point="listener">
+
+        <listener name="pictureViewListener" enabled="false" />
+        <listener name="pictureViewsGenerationListener" enabled="false" />
+
+    </extension>
+
+</component>
