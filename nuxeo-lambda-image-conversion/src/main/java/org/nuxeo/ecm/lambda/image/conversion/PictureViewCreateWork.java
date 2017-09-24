@@ -72,6 +72,7 @@ public class PictureViewCreateWork extends PictureViewsGenerationWork {
 
         DocumentModel document = session.getDocument(new IdRef(docId));
         String filename = (String) document.getPropertyValue("file:content/name");
+        filename = removeExtension(filename) + ".png";
         String repositoryName = document.getRepositoryName();
 
         log.debug("received " + properties.size() + " properties");
@@ -142,5 +143,10 @@ public class PictureViewCreateWork extends PictureViewsGenerationWork {
         }
         // in test with local BM ...
         return null;
+    }
+
+    private String removeExtension(String path) {
+        int i = path.indexOf(46);
+        return i == -1 ? path : path.substring(0, i);
     }
 }
