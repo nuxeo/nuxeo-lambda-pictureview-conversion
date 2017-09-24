@@ -101,7 +101,6 @@ public class PictureCreatedListener implements EventListener {
 
             JSONObject conversionsJSON = new JSONObject();
             ImagingService imagingService = Framework.getService(ImagingService.class);
-            assert imagingService != null;
 
             List<PictureConversion> conversions = imagingService.getPictureConversions();
             log.debug("Found " + conversions.size() + " PictureConversions");

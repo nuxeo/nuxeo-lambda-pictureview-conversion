@@ -1,14 +1,8 @@
 'use strict';
 
-const gm = require('gm')
-    .subClass({
-        imageMagick: true
-    });
-const aws = require('aws-sdk');
-const crypto = require('crypto');
-const fs = require('fs');
-const s3 = new aws.S3();
-const request = require('request');
+const Caller = require('api_caller');
+const Loader = require('loader');
+const Resizer = require('resizer');
 
 function sort(dict) {
     const items = Object.keys(dict).map(function (key) {
@@ -23,26 +17,10 @@ function sort(dict) {
     return items;
 }
 
-function getSize(path) {
-    return new Promise(function(resolve, reject) {
-        gm(path).size(function(err, size) {
-            if (err) reject(err);
-            const width = size.width;
-            const height = size.height;
-            console.log('Width and Height are', width, height);
-            resolve({
-                path: path,
-                width: width,
-                height: height
-            });
-        });
-    });
-}
-
 function calcSize(maxSizeInfo, size) {
-    var width = size.width;
-    var height = size.height;
-    var ratio = 0;
+    let width = size.width;
+    let height = size.height;
+    let ratio = 0;
     const maxSize = maxSizeInfo[1];
     if (width > maxSize) {
         ratio = maxSize / width;
@@ -63,166 +41,62 @@ function calcSize(maxSizeInfo, size) {
     };
 }
 
-function download(bucket, filename, path) {
-    return new Promise(function(resolve, reject) {
-        s3.getObject({
-            Bucket: bucket,
-            Key: filename
-        }, function(err, res) {
-            if (err) {
-                console.log('Error on download', err);
-                reject(err);
-                return;
-            }
-            console.log('Writing original file to', path);
-            fs.writeFileSync(path, res.Body);
-            resolve(path);
-        });
-    });
-}
-
-function transform(path, size) {
-    return new Promise(function(resolve, reject) {
-        console.log('Reading original file from',  path);
-        const out = '/tmp/resized_' + size.width + '.jpg';
-        console.log('Writing temporary file to', out);
-
-        gm(path + '[0]')
-            .resize(size.width, size.height)
-            .flatten()
-            .write(out, function (err) {
-                if (err) reject(err);
-                else resolve({
-                    path: out,
-                    size: size
-                });
-            });
-    });
-}
-
-function upload(bucket, info, original) {
-    const file = fs.readFileSync(info.path);
-    const digest = crypto.createHash('md5').update(file).digest('hex');
-    console.log('uploading', digest);
-    const params = {
-        Bucket: bucket,
-        Key: digest,
-        Body: file,
-        ContentType: 'image/jpg',
-        Metadata: {
-            originalFileDigest: original
-        }
-    };
-
-    return new Promise(function(resolve, reject) {
-        s3.putObject(params, function(err, data) {
-            if (err) {
-                console.log('Error on upload', err);
-                reject(err);
-                return;
-            }
-            resolve({
-                data: data,
-                length: file.length,
-                digest: digest,
-                name: info.size.name,
-                width: info.size.width,
-                height: info.size.height
-            });
-        });
-    });
-}
-
-function buildPath(host, cb, success) {
-    const domain = host + '/site/lambda/';
-    if (success) {
-        return domain + 'success/' + cb;
-    } else {
-        return domain + 'error/' + cb;
-    }
-}
-
-function callREST(meta, host, cb, startTime, success=true, error=null) {
-    var json = {};
-    json.time = new Date() - startTime;
-    json.images = meta;
-    json.error = error;
-
-    console.log('JSON: ', json);
-    const path = buildPath(host, cb, success);
-    console.log("request: ", path);
-    return new Promise(function (resolve, reject) {
-        request.post(path, {
-            json: json,
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }, function (err, response, _) {
-            if (err) {
-                console.log('Error on callREST', err);
-                return;
-            }
-            if (success) {
-                resolve(response);
-            } else {
-                resolve(error);
-            }
-        });
-    });
-}
-
 exports.handler = (event, context, callback) => {
     const start = new Date();
     console.log(event);
-    const host = event.host;
-    const cb = event.cbId;
-    const bucket = event.input.bucket;
     const digest = event.input.digest;
-    const filename = event.input.filename;
-
-    const path = '/tmp/' + filename;
-
-    var sizes = JSON.parse(event.input.sizes);
+    let sizes = JSON.parse(event.input.sizes);
     sizes = sort(sizes);
 
-    download(bucket, digest, path)
-        .then(function(info) {
-            return getSize(info)
+    let caller = new Caller(event.host, event.cbId);
+    let loader = new Loader(event.prefix, event.bucket);
+    let resizer = new Resizer();
+
+    console.log('Starting call chain');
+    loader.download(digest)
+        .then(function(s3Obj) {
+            return resizer.writeStream(s3Obj, null);
         })
         .then(function(info) {
-
-            var ps = [];
+            console.log("Getting size of", info);
+            return resizer.getSize(info.path);
+        })
+        .then(function(info) {
+            console.log('Got size:', info);
+            let ps = [];
+            console.log('Object processing', JSON.stringify(info));
+            resizer.original.size.height = info.size.height;
+            resizer.original.size.width = info.size.width;
             for (const size of sizes) {
                 console.log('Size processing', size);
-                const theSize = calcSize(size, info);
-                ps.push(transform(info.path, theSize));
+                ps.push(resizer.transform(info.path, calcSize(size, info)));
             }
             return Promise.all(ps);
         })
         .then(function(infos) {
-            var ps = [];
+            let ps = [];
+            infos.push(resizer.original);
             for (const info of infos) {
                 console.log('About to upload', info);
-                ps.push(upload(bucket, info, digest));
+                ps.push(loader.upload(info, digest));
             }
             return Promise.all(ps);
         })
         .catch(function(err) {
             console.log('Error occurred', err);
-            callREST(null, host, cb, start, false, err)
+            caller.call(null, start, false, err)
                 .then(function () {
-                    callback(err);
+                    console.log("Called server on error", err.message);
                 })
                 .catch(function(err) {
-                    console.log(err);
+                    console.log('Could not send data on error. Lambda error', err.message);
                 });
         })
         .then(function (result) {
             if (result)
-                return callREST(result, host, cb, start);
+                return caller.call(result, start);
         })
         .catch(function (err) {
-            console.log('Couldn\'t complete the chan', err);
-            callback(err);
+            console.log('Couldn\'t complete the chain', err);
         });
 };

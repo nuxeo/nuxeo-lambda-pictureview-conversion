@@ -6,6 +6,7 @@
     <artifactId>nuxeo-distribution</artifactId>
     <version>9.3-SNAPSHOT</version>
   </parent>
+
   <groupId>org.nuxeo.ecm.lambda.conversion</groupId>
   <artifactId>nuxeo-lambda-conversion-parent</artifactId>
   <version>9.3-SNAPSHOT</version>
