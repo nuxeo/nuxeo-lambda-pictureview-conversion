@@ -10,6 +10,7 @@
                   priority="20">
             <event>documentCreated</event>
             <event>documentModified</event>
+            <event>rebuildWithLambda</event>
         </listener>
 
         <listener name="lambdaResponse"

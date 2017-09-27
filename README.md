@@ -5,6 +5,9 @@
 ##### General
 The contribution redirects all image conversion to AWS Lambda.
 Currently, Nuxeo Lambda used for picture conversion creation.
+Current implementation uses streaming to download the initial file from Nuxeo.
+This approach allows to get around with storage limitation at AWS Lambda in many cases.
+`Loader` class contains two methods 
 
 ##### Performance
 AWS Lambda dramatically speeds up computation time.
