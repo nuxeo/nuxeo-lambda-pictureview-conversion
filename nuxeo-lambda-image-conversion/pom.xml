@@ -27,14 +27,17 @@
         </dependency>
         <dependency>
             <groupId>org.nuxeo.ecm.platform</groupId>
-            <artifactId>nuxeo-imaging-recompute</artifactId>
+            <artifactId>nuxeo-platform-imaging-jsf</artifactId>
         </dependency>
         <dependency>
             <groupId>org.nuxeo.ecm.automation</groupId>
             <artifactId>nuxeo-automation-test</artifactId>
             <scope>test</scope>
         </dependency>
-    </dependencies>
 
-    
+        <dependency>
+            <groupId>org.jboss.seam</groupId>
+            <artifactId>jboss-seam</artifactId>
+        </dependency>
+    </dependencies>
 </project>

@@ -26,7 +26,7 @@ import org.jboss.seam.annotations.Name;
 import org.jboss.seam.annotations.Scope;
 import org.jboss.seam.international.StatusMessage;
 import org.nuxeo.ecm.core.work.api.WorkManager;
-import org.nuxeo.ecm.imaging.recompute.ImagingRecomputeActions;
+import org.nuxeo.ecm.platform.picture.recompute.ImagingRecomputeActions;
 import org.nuxeo.runtime.api.Framework;
 
 
