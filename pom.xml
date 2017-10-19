@@ -95,4 +95,22 @@
     </pluginRepository>
   </pluginRepositories>
 
+  <profiles>
+    <profile>
+      <id>nightly</id>
+      <repositories>
+        <repository>
+          <id>nightly-staging</id>
+          <url>https://mavenin.nuxeo.com/nexus/content/repositories/nightly-staging</url>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
+    </profile>
+  </profiles>
+
 </project>
