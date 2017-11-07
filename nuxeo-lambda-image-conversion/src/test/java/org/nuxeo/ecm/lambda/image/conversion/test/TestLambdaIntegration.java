@@ -19,7 +19,12 @@
  */
 package org.nuxeo.ecm.lambda.image.conversion.test;
 
-import org.codehaus.jettison.json.JSONObject;
+import static org.junit.Assert.assertNotNull;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.core.test.CoreFeature;
@@ -30,12 +35,6 @@ import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
-
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.Assert.assertNotNull;
 
 @RunWith(FeaturesRunner.class)
 @Features({ CoreFeature.class, PlatformFeature.class })
@@ -58,7 +57,6 @@ public class TestLambdaIntegration {
 
         LambdaInputPreprocessor preprocessor = new LambdaInputPreprocessor(map);
 
-        JSONObject object = service.scheduleCall("nuxeo-lambda", null, preprocessor);
-        assertNotNull(object);
+        service.scheduleCall("nuxeo-lambda", null, preprocessor);
     }
 }
