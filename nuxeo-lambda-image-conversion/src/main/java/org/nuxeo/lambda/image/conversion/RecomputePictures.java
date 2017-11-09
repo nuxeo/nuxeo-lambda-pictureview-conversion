@@ -17,8 +17,7 @@
  * Contributors:
  *     anechaev
  */
-package org.nuxeo.ecm.lambda.image.conversion;
-
+package org.nuxeo.lambda.image.conversion;
 
 import org.apache.commons.lang.StringUtils;
 import org.nuxeo.ecm.automation.core.annotations.Operation;
@@ -52,3 +51,4 @@ public class RecomputePictures {
         return false;
     }
 }
+

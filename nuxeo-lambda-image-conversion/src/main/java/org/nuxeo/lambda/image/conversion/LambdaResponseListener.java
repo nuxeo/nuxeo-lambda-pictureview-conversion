@@ -17,7 +17,15 @@
  * Contributors:
  *     anechaev
  */
-package org.nuxeo.ecm.lambda.image.conversion;
+package org.nuxeo.lambda.image.conversion;
+
+import static org.nuxeo.lambda.core.LambdaService.LAMBDA_RESPONSE_KEY;
+import static org.nuxeo.lambda.core.LambdaService.PARAMETERS_KEY;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,23 +36,20 @@ import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.core.event.EventContext;
 import org.nuxeo.ecm.core.event.EventListener;
 import org.nuxeo.ecm.core.work.api.WorkManager;
-import org.nuxeo.ecm.lambda.core.service.LambdaService;
 import org.nuxeo.ecm.platform.picture.PictureViewsGenerationWork;
+import org.nuxeo.lambda.core.LambdaService;
 import org.nuxeo.runtime.api.Framework;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static org.nuxeo.ecm.lambda.core.service.LambdaServiceConstants.*;
-import static org.nuxeo.ecm.lambda.integration.endpoint.service.LambdaResponseAcceptor.LAMBDA_EVENT_NAME;
-import static org.nuxeo.ecm.lambda.integration.endpoint.service.LambdaResponseAcceptor.LAMBDA_FAILED_EVENT_NAME;
-
-
+/**
+ * @since 9.3
+ */
 public class LambdaResponseListener implements EventListener {
 
     public static final Log log = LogFactory.getLog(LambdaResponseListener.class);
+
+    public static final String LAMBDA_SUCCESS_EVENT_NAME = "afterLambdaPictureResponse";
+
+    public static final String LAMBDA_ERROR_EVENT_NAME = "lambdaPictureFailed";
 
     protected static final String XPATH = "file:content";
 
@@ -54,7 +59,7 @@ public class LambdaResponseListener implements EventListener {
         EventContext ctx = event.getContext();
         Map<String, Serializable> params = (Map<String, Serializable>) ctx.getProperty(PARAMETERS_KEY);
 
-        if (event.getName().equals(LAMBDA_EVENT_NAME)) {
+        if (LAMBDA_SUCCESS_EVENT_NAME.equals(event.getName())) {
             JSONObject object = (JSONObject) ctx.getProperty(LAMBDA_RESPONSE_KEY);
             if (params == null || object == null) {
                 log.warn("Couldn't get any data from the context");
@@ -65,22 +70,21 @@ public class LambdaResponseListener implements EventListener {
                 JSONArray json = object.getJSONArray("images");
                 List<ImageProperties> props = new ArrayList<>(json.length());
                 for (int i = 0; i < json.length(); i++) {
-                    props.add(
-                            new ImageProperties(json.getJSONObject(i))
-                    );
+                    props.add(new ImageProperties(json.getJSONObject(i)));
                 }
 
-                final String repoName = (String) params.get(REPOSITORY_PROP);
-                final String docId = (String) params.get(DOC_ID_PROP);
+                String repoName = (String) params.get(PictureCreatedListener.REPOSITORY_PROP);
+                String docId = (String) params.get(PictureCreatedListener.DOC_ID_PROP);
                 PictureViewCreateWork work = new PictureViewCreateWork(repoName, docId, XPATH, props);
                 WorkManager manager = Framework.getService(WorkManager.class);
                 manager.schedule(work, WorkManager.Scheduling.IF_NOT_SCHEDULED, true);
             } catch (JSONException e) {
                 log.error(e);
             }
-        } else if (event.getName().equals(LAMBDA_FAILED_EVENT_NAME)) {
-            String docId = (String) params.get(DOC_ID_PROP);
-            String repoName = (String) params.get(REPOSITORY_PROP);
+        } else if (LAMBDA_ERROR_EVENT_NAME.equals(event.getName())) {
+            // fallback on default picture view generation
+            String docId = (String) params.get(PictureCreatedListener.DOC_ID_PROP);
+            String repoName = (String) params.get(PictureCreatedListener.REPOSITORY_PROP);
 
             PictureViewsGenerationWork work = new PictureViewsGenerationWork(repoName, docId, XPATH);
             WorkManager workManager = Framework.getService(WorkManager.class);

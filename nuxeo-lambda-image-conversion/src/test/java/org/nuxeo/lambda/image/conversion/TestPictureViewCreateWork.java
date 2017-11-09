@@ -17,12 +17,21 @@
  * Contributors:
  *     anechaev
  */
-package org.nuxeo.ecm.lambda.image.conversion.test;
+package org.nuxeo.lambda.image.conversion;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.io.File;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import javax.inject.Inject;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.core.api.Blob;
@@ -35,45 +44,19 @@ import org.nuxeo.ecm.core.blob.BlobProvider;
 import org.nuxeo.ecm.core.blob.binary.BinaryManager;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.ecm.core.work.api.WorkManager;
-import org.nuxeo.ecm.lambda.image.conversion.ImageProperties;
-import org.nuxeo.ecm.lambda.image.conversion.PictureViewCreateWork;
 import org.nuxeo.ecm.platform.test.PlatformFeature;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
-import org.nuxeo.runtime.test.runner.LocalDeploy;
 import org.nuxeo.runtime.transaction.TransactionHelper;
-
-import javax.inject.Inject;
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.IntStream;
-
-import static org.junit.Assert.*;
 
 @RunWith(FeaturesRunner.class)
 @Features({ CoreFeature.class, PlatformFeature.class })
-@Deploy({
-        "org.nuxeo.lambda.integration.core",
-        "org.nuxeo.ecm.platform.picture.core",
-        "org.nuxeo.ecm.core.cache",
-        "org.nuxeo.ecm.automation.core",
-})
-@LocalDeploy({
-        "org.nuxeo.ecm.lambda.image.conversion.test:disable-listener-contrib.xml"
-})
+@Deploy({ "org.nuxeo.lambda.core", "org.nuxeo.lambda.image.conversion:OSGI-INF/lambda-listeners-workaround-contrib.xml",
+                "org.nuxeo.ecm.platform.picture.api", "org.nuxeo.ecm.platform.picture.core", "org.nuxeo.ecm.core.cache",
+                "org.nuxeo.ecm.automation.core" })
 public class TestPictureViewCreateWork {
-
-    public static final Log log = LogFactory.getLog(TestPictureViewCreateWork.class);
-
-    protected static final int IMAGES_NUM = 3;
 
     @Inject
     private CoreSession session;
@@ -94,23 +77,16 @@ public class TestPictureViewCreateWork {
         List<Blob> blobs = Arrays.asList(blob1, blob2, blob3);
         BinaryManager binaryManager = bp.getBinaryManager();
 
-        List<ImageProperties> properties = new ArrayList<>(IMAGES_NUM);
-
-        IntStream.range(0, IMAGES_NUM)
-                .forEach(i -> {
-                    JSONObject json = new JSONObject();
-                    try {
-                        json.put(ImageProperties.IMAGE_DIGEST, binaryManager.getBinary(blobs.get(i)).getDigest());
-                        json.put(ImageProperties.IMAGE_WIDTH, 100);
-                        json.put(ImageProperties.IMAGE_HEIGHT, 100);
-                        json.put(ImageProperties.IMAGE_NAME, blobs.get(i).getFilename());
-                        json.put(ImageProperties.IMAGE_LENGTH, 1001);
-                        properties.add(new ImageProperties(json));
-                    } catch (JSONException | IOException e) {
-                        log.error(e);
-                        assertNull(e);
-                    }
-                });
+        List<ImageProperties> properties = new ArrayList<>();
+        for (Blob blob : blobs) {
+            ImageProperties property = new ImageProperties();
+            property.setDigest(binaryManager.getBinary(blob).getDigest());
+            property.setWidth(100);
+            property.setHeight(100);
+            property.setName(blob.getFilename());
+            property.setLength(1001);
+            properties.add(property);
+        }
 
         return properties;
     }
@@ -119,7 +95,7 @@ public class TestPictureViewCreateWork {
     @SuppressWarnings("unchecked")
     public void shouldCompleteWork() throws Exception {
 
-        File image = new File(this.getClass().getClassLoader().getResource("binaries/nuxeo.png").getFile());
+        File image = new File(getClass().getClassLoader().getResource("binaries/nuxeo.png").getFile());
 
         Blob blob = new FileBlob(image);
         blob.setFilename("nuxeo.png");
@@ -137,7 +113,7 @@ public class TestPictureViewCreateWork {
 
         assertNotNull(pictureDoc);
         PictureViewCreateWork work = new PictureViewCreateWork(session.getRepositoryName(), pictureDoc.getId(),
-                "file:content", digests);
+                                                               "file:content", digests);
         WorkManager manager = Framework.getService(WorkManager.class);
         manager.schedule(work, false);
         Thread.sleep(100);
@@ -146,7 +122,8 @@ public class TestPictureViewCreateWork {
 
         pictureDoc = session.getDocument(pictureDoc.getRef());
 
-        List<Map<String, Serializable>> views = (List<Map<String, Serializable>>) pictureDoc.getPropertyValue("picture:views");
-        assertEquals(IMAGES_NUM, views.size());
+        List<Map<String, Serializable>> views = (List<Map<String, Serializable>>) pictureDoc.getPropertyValue(
+                "picture:views");
+        assertEquals(digests.size(), views.size());
     }
 }

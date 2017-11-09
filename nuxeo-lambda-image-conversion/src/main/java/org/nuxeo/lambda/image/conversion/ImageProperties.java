@@ -17,14 +17,14 @@
  * Contributors:
  *     anechaev
  */
-package org.nuxeo.ecm.lambda.image.conversion;
+package org.nuxeo.lambda.image.conversion;
+
+import java.io.Serializable;
+import java.util.Map;
 
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.nuxeo.ecm.platform.picture.api.ImageInfo;
-
-import java.io.Serializable;
-import java.util.Map;
 
 public class ImageProperties implements Serializable {
 
@@ -100,37 +100,29 @@ public class ImageProperties implements Serializable {
     }
 
     public Map<String, Serializable> toMap(String filename) {
-        return new ImageInfo(
-                width.toString(),
-                height.toString(),
-                "png",
-                filename
-        ).toMap();
-
+        return new ImageInfo(width.toString(), height.toString(), "png", filename).toMap();
 
     }
 
     @Override
     public String toString() {
-        return "ImageProperties {" +
-                "name='" + name + '\'' +
-                ", digest='" + digest + '\'' +
-                ", width=" + width +
-                ", height=" + height +
-                '}';
+        return "ImageProperties {" + "name='" + name + '\'' + ", digest='" + digest + '\'' + ", width=" + width
+                + ", height=" + height + '}';
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ImageProperties)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ImageProperties)) {
+            return false;
+        }
 
         ImageProperties imageProperties = (ImageProperties) o;
 
-        return name.equals(imageProperties.name) &&
-                digest.equals(imageProperties.digest) &&
-                width.equals(imageProperties.width) &&
-                height.equals(imageProperties.height);
+        return name.equals(imageProperties.name) && digest.equals(imageProperties.digest) && width.equals(
+                imageProperties.width) && height.equals(imageProperties.height);
     }
 
     @Override

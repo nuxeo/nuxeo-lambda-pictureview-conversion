@@ -17,7 +17,14 @@
  * Contributors:
  *     anechaev
  */
-package org.nuxeo.ecm.lambda.image.conversion;
+package org.nuxeo.lambda.image.conversion;
+
+import static org.nuxeo.ecm.platform.picture.api.ImagingDocumentConstants.PICTURE_FACET;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,19 +37,14 @@ import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.core.event.EventContext;
 import org.nuxeo.ecm.core.event.EventListener;
 import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
-import org.nuxeo.ecm.lambda.core.LambdaInputPreprocessor;
-import org.nuxeo.ecm.lambda.core.service.LambdaService;
 import org.nuxeo.ecm.platform.picture.api.ImagingService;
 import org.nuxeo.ecm.platform.picture.api.PictureConversion;
+import org.nuxeo.lambda.core.LambdaInput;
+import org.nuxeo.lambda.core.LambdaService;
 import org.nuxeo.runtime.api.Framework;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
- * Created by anechaev on 6/16/17.
+ * Listener used to schedule lambda task when Picture documents are updated.
  */
 public class PictureCreatedListener implements EventListener {
 
@@ -50,7 +52,7 @@ public class PictureCreatedListener implements EventListener {
 
     public static final String DISABLE_PICTURE_VIEWS_GENERATION_LISTENER = "disablePictureViewsGenerationListener";
 
-    public static final String NUXEO_DEFAULT_LAMBDA_NAME = "nuxeo-lambda";
+    public static final String DEFAULT_LAMBDA_PICTURE_NAME = "nuxeo-lambda-picture";
 
     public static final String BUCKET = "bucket";
 
@@ -63,6 +65,10 @@ public class PictureCreatedListener implements EventListener {
     public static final String LIFECYCLE = "lifecycle";
 
     public static final String CONVERSIONS_SIZES = "sizes";
+
+    public static final String DOC_ID_PROP = "docId";
+
+    public static final String REPOSITORY_PROP = "repository";
 
     @Override
     public void handleEvent(Event event) {
@@ -79,7 +85,7 @@ public class PictureCreatedListener implements EventListener {
 
         DocumentEventContext docCtx = (DocumentEventContext) ctx;
         DocumentModel doc = docCtx.getSourceDocument();
-        if (doc.hasFacet("Picture") && !doc.isProxy()) {
+        if (doc.hasFacet(PICTURE_FACET) && !doc.isProxy()) {
             Property content = doc.getProperty("file:content");
             Blob blob = (Blob) content.getValue();
 
@@ -105,25 +111,25 @@ public class PictureCreatedListener implements EventListener {
             List<PictureConversion> conversions = imagingService.getPictureConversions();
             log.debug("Found " + conversions.size() + " PictureConversions");
             conversions.forEach(conv -> {
-                        try {
-                            conversionsJSON.put(conv.getId(), conv.getMaxSize());
-                        } catch (JSONException e) {
-                            log.error("Couldn't put conversion into JSON", e);
-                        }
-                    });
+                try {
+                    conversionsJSON.put(conv.getId(), conv.getMaxSize());
+                } catch (JSONException e) {
+                    log.error("Couldn't put conversion into JSON", e);
+                }
+            });
 
             // Seems weird to convert a JSONObject to string before passing to AWS but it works...
             lambdaInput.put(CONVERSIONS_SIZES, conversionsJSON.toString());
 
-            String lambdaName = Framework.getProperty("nuxeo.lambda.image.conversion", NUXEO_DEFAULT_LAMBDA_NAME);
+            String lambdaName = Framework.getProperty("nuxeo.lambda.image.conversion", DEFAULT_LAMBDA_PICTURE_NAME);
 
             try {
                 Map<String, Serializable> params = new HashMap<>();
-                params.put(LambdaService.DOC_ID_PROP, doc.getId());
-                params.put(LambdaService.REPOSITORY_PROP, doc.getRepositoryName());
+                params.put(DOC_ID_PROP, doc.getId());
+                params.put(REPOSITORY_PROP, doc.getRepositoryName());
 
-                LambdaInputPreprocessor preprocessor = new LambdaInputPreprocessor(lambdaInput);
-                service.scheduleCall(lambdaName, params, preprocessor);
+                LambdaInput input = new LambdaInput(lambdaInput);
+                service.scheduleCall(lambdaName, params, input);
             } catch (Exception e) {
                 log.error("Error while calling Lambda", e);
             }

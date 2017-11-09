@@ -1,0 +1,8 @@
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .
+Manifest-Version: 1.0
+Bundle-Vendor: nuxeo
+Bundle-Version: 1.0.0
+Bundle-Name: nuxeo-lambda-image-conversion
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.nuxeo.lambda.image.conversion.test;singleton=true

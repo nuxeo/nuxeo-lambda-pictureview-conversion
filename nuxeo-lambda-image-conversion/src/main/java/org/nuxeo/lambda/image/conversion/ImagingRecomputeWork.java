@@ -17,7 +17,9 @@
  *     Andrei Nechaev
  */
 
-package org.nuxeo.ecm.lambda.image.conversion;
+package org.nuxeo.lambda.image.conversion;
+
+import static org.nuxeo.ecm.platform.picture.api.ImagingDocumentConstants.PICTURE_FACET;
 
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentModelList;
@@ -25,7 +27,6 @@ import org.nuxeo.ecm.core.event.EventContext;
 import org.nuxeo.ecm.core.event.EventService;
 import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
 import org.nuxeo.ecm.core.work.AbstractWork;
-import static org.nuxeo.ecm.platform.picture.api.ImagingDocumentConstants.PICTURE_FACET;
 import org.nuxeo.runtime.api.Framework;
 
 public class ImagingRecomputeWork extends AbstractWork {

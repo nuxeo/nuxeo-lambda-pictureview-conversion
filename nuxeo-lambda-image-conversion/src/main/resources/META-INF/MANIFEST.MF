@@ -6,8 +6,8 @@ Bundle-Version: 1.0.0
 Bundle-Name: nuxeo-lambda-image-conversion
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.nuxeo.lambda.image.conversion;singleton=true
-Nuxeo-Component: OSGI-INF/lambda-config-contrib.xml,
- OSGI-INF/lambda-listeners-contrib.xml,
+Nuxeo-Component: OSGI-INF/lambda-listeners-contrib.xml,
  OSGI-INF/lambda-listeners-workaround-contrib.xml,
  OSGI-INF/lambda-operations-contrib.xml,
- OSGI-INF/lambda-picture-view-gen-contrib.xml
+ OSGI-INF/lambda-picture-config-contrib.xml,
+ OSGI-INF/lambda-picture-queues-contrib.xml

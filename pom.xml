@@ -8,7 +8,7 @@
     <version>9.3-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.nuxeo.ecm.lambda.conversion</groupId>
+  <groupId>org.nuxeo.lambda.conversion</groupId>
   <artifactId>nuxeo-lambda-conversion-parent</artifactId>
   <name>Nuxeo lambda image conversion parent</name>
   <packaging>pom</packaging>
@@ -20,13 +20,18 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.nuxeo.ecm.lambda.integration</groupId>
-        <artifactId>nuxeo-lambda-integration-core</artifactId>
+        <groupId>org.nuxeo.lambda</groupId>
+        <artifactId>nuxeo-lambda-core</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.nuxeo.ecm.lambda.integration</groupId>
-        <artifactId>nuxeo-lambda-integration-endpoint</artifactId>
+        <groupId>org.nuxeo.lambda</groupId>
+        <artifactId>nuxeo-lambda-aws</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.nuxeo.lambda</groupId>
+        <artifactId>nuxeo-lambda-endpoint</artifactId>
         <version>${project.version}</version>
       </dependency>
     </dependencies>

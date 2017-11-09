@@ -17,7 +17,15 @@
  * Contributors:
  *     anechaev
  */
-package org.nuxeo.ecm.lambda.image.conversion;
+package org.nuxeo.lambda.image.conversion;
+
+import static org.nuxeo.ecm.core.api.CoreSession.ALLOW_VERSION_WRITE;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,18 +39,10 @@ import org.nuxeo.ecm.core.blob.binary.BinaryManager;
 import org.nuxeo.ecm.core.blob.binary.CachingBinaryManager;
 import org.nuxeo.ecm.core.blob.binary.LazyBinary;
 import org.nuxeo.ecm.core.versioning.VersioningService;
-import org.nuxeo.ecm.lambda.core.service.LambdaService;
+import org.nuxeo.lambda.core.LambdaService;
 import org.nuxeo.ecm.platform.picture.PictureViewsGenerationWork;
 import org.nuxeo.ecm.platform.picture.api.PictureView;
 import org.nuxeo.runtime.api.Framework;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.nuxeo.ecm.core.api.CoreSession.ALLOW_VERSION_WRITE;
 
 public class PictureViewCreateWork extends PictureViewsGenerationWork {
 
@@ -80,13 +80,8 @@ public class PictureViewCreateWork extends PictureViewsGenerationWork {
         for (ImageProperties property : properties) {
             String digest = property.getDigest();
             BinaryBlob blob = new BinaryBlob(
-                    new LazyBinary(digest, repositoryName, getCachingBinaryManager(repositoryName)),
-                    digest,
-                    filename,
-                    "image/png",
-                    null,
-                    digest,
-                    property.getLength());
+                    new LazyBinary(digest, repositoryName, getCachingBinaryManager(repositoryName)), digest, filename,
+                    "image/png", null, digest, property.getLength());
 
             // XXX here you need to get more info from the lambda
             // probably passing some JSON from the lambda back to the Callback

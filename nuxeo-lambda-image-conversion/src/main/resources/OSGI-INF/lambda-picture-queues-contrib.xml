@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.ecm.custom.work.queue.config">
+<component name="org.nuxeo.lambda.picture.work.queue.config">
 
   <extension point="queues" target="org.nuxeo.ecm.core.work.service">
     <queue id="lambda-picture-conversion-queue">
-      <name>My Queue</name>
+      <name>Lambda Picture Conversion Queue</name>
       <maxThreads>4</maxThreads>
       <category>pictureViewWithLambdaGeneration</category>
     </queue>
