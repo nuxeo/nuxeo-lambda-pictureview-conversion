@@ -19,40 +19,36 @@
  */
 package org.nuxeo.ecm.lambda.image.conversion;
 
+
 import org.apache.commons.lang.StringUtils;
-import org.jboss.seam.ScopeType;
-import org.jboss.seam.annotations.Install;
-import org.jboss.seam.annotations.Name;
-import org.jboss.seam.annotations.Scope;
-import org.jboss.seam.international.StatusMessage;
+import org.nuxeo.ecm.automation.core.annotations.Operation;
+import org.nuxeo.ecm.automation.core.annotations.OperationMethod;
+import org.nuxeo.ecm.automation.core.annotations.Param;
 import org.nuxeo.ecm.core.work.api.WorkManager;
-import org.nuxeo.ecm.platform.picture.recompute.ImagingRecomputeActions;
 import org.nuxeo.runtime.api.Framework;
 
+@Operation(id = RecomputePictures.ID, description = "Recomputes Pictures retrieved based on a given query")
+public class RecomputePictures {
 
-/**
- * @since TODO
- */
-@Name("imagingRecomputeActions")
-@Scope(ScopeType.CONVERSATION)
-@Install(precedence = Install.DEPLOYMENT)
-public class ImageRecomputeWorkAction extends ImagingRecomputeActions {
+    public static final String ID = "Picture.Recompute";
 
-    private static final long serialVersionUID = 1L;
+    @Param(name = "query")
+    protected String query;
 
-    @Override
-    public void launchPictureViewsRecomputation() {
-        WorkManager workManager = Framework.getLocalService(WorkManager.class);
+    @OperationMethod
+    public boolean run() {
+        WorkManager workManager = Framework.getService(WorkManager.class);
         if (workManager == null) {
             throw new RuntimeException("No WorkManager available");
         }
 
-        if (!StringUtils.isBlank(nxqlQuery)) {
-            ImagingRecomputeWork work = new ImagingRecomputeWork(nxqlQuery);
+        if (!StringUtils.isBlank(query)) {
+            ImagingRecomputeWork work = new ImagingRecomputeWork(query);
             workManager.schedule(work, WorkManager.Scheduling.IF_NOT_RUNNING_OR_SCHEDULED);
 
-            facesMessages.addFromResourceBundle(StatusMessage.Severity.INFO, "label.imaging.recompute.work.launched");
+            return true;
         }
 
+        return false;
     }
 }

@@ -7,7 +7,10 @@ The contribution redirects all image conversion to AWS Lambda.
 Currently, Nuxeo Lambda used for picture conversion creation.
 Current implementation uses streaming to download the initial file from Nuxeo.
 This approach allows to get around with storage limitation at AWS Lambda in many cases.
-`Loader` class contains two methods 
+
+The contribution exposes `Picture.Recompute` automation operation. The operation accepts only one parameter - `query`.
+It will recompute all `Picture`s that satisfies the given query using AWS Lambda. To get more information about calling automation operations
+in Nuxeo, please follow our official [documentation](https://doc.nuxeo.com/nxdoc/automation/).
 
 ##### Performance
 AWS Lambda dramatically speeds up computation time.
