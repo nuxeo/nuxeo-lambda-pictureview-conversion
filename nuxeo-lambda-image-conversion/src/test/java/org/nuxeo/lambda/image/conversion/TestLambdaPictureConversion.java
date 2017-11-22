@@ -60,7 +60,8 @@ import org.nuxeo.runtime.transaction.TransactionHelper;
 @RunWith(FeaturesRunner.class)
 @Features({ PlatformFeature.class })
 @Deploy({ "org.nuxeo.lambda.core", "org.nuxeo.lambda.image.conversion", "org.nuxeo.ecm.platform.picture.api",
-                "org.nuxeo.ecm.platform.picture.core", "org.nuxeo.ecm.core.cache", "org.nuxeo.ecm.automation.core" })
+                "org.nuxeo.ecm.platform.picture.core", "org.nuxeo.ecm.platform.tag", "org.nuxeo.ecm.core.cache",
+                "org.nuxeo.ecm.automation.core" })
 @LocalDeploy("org.nuxeo.lambda.image.conversion.test:OSGI-INF/lambda-picture-config-override-contrib.xml")
 public class TestLambdaPictureConversion {
 
@@ -102,7 +103,8 @@ public class TestLambdaPictureConversion {
         }
 
         pictureDoc = session.getDocument(pictureDoc.getRef());
-        List<Map<String, Serializable>> pictureViews = (List<Map<String, Serializable>>) pictureDoc.getPropertyValue("picture:views");
+        List<Map<String, Serializable>> pictureViews = (List<Map<String, Serializable>>) pictureDoc.getPropertyValue(
+                "picture:views");
         assertNotNull(pictureViews);
         assertEquals(3, pictureViews.size());
     }

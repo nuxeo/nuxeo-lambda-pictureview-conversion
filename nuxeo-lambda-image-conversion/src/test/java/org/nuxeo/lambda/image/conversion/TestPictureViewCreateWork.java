@@ -53,9 +53,8 @@ import org.nuxeo.runtime.transaction.TransactionHelper;
 
 @RunWith(FeaturesRunner.class)
 @Features({ CoreFeature.class, PlatformFeature.class })
-@Deploy({ "org.nuxeo.lambda.core", "org.nuxeo.lambda.image.conversion:OSGI-INF/lambda-listeners-workaround-contrib.xml",
-                "org.nuxeo.ecm.platform.picture.api", "org.nuxeo.ecm.platform.picture.core", "org.nuxeo.ecm.core.cache",
-                "org.nuxeo.ecm.automation.core" })
+@Deploy({ "org.nuxeo.lambda.core", "org.nuxeo.ecm.platform.tag", "org.nuxeo.ecm.platform.picture.api",
+                "org.nuxeo.ecm.platform.picture.core", "org.nuxeo.ecm.core.cache", "org.nuxeo.ecm.automation.core" })
 public class TestPictureViewCreateWork {
 
     @Inject
