@@ -21,7 +21,7 @@ In the benchmark test, each entry creates 4 picture views of different size.
 ##### Limitations
 Currently AWS Lambda limited with:
 
-- 1536 MB RAM
+- 3GB RAM
 - 5 minutes of execution time
 - 500 MB of storage for each lambda
 - 1000 concurrent calls
@@ -33,6 +33,8 @@ In **nuxeo-lambda-image-conversion** you can find server side contribution.
 This should be build with regular maven command from the root directory.
  
 `mvn clean install`
+
+to set up the function name used at your AWS account you need to update `nuxeo.conf` property `nuxeo.lambda.image.conversion`. Otherwise `nuxeo-lambda-picture` name will be used. 
 
 **aws_lambda_impl** contains code ready to use on AWS Lambda. 
 By default AWS has **Imagemagick** version 6.x.

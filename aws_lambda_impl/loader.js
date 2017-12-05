@@ -59,7 +59,9 @@ class Loader {
     }
 
     static getHash(file) {
-        return crypto.createHash('md5').update(file).digest('hex');
+        return crypto.createHash('md5')
+            .update(file)
+            .digest('hex');
     }
 }
 
