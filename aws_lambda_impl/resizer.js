@@ -60,8 +60,6 @@ class Resizer {
         });
     }
 
-    transformFromS3Object(s3Obj, size);
-
     writeStream(obj, size) {
         return new Promise(function (resolve, reject) {
             const path = '/tmp/' + new Date().getMilliseconds().toString() + '.jpg';

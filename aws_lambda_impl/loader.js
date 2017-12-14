@@ -13,8 +13,8 @@ class Loader {
         let key = this.prefix === undefined ||
             this.prefix === null ||
             this.prefix === '' ? digest : this.prefix + digest;
-        console.log('Downloading', key);
         let bucket = this.bucket;
+        console.log('Downloading', key, "from:", bucket);
         return new Promise(function(resolve, reject) {
             let info = {
                 Bucket: bucket,
