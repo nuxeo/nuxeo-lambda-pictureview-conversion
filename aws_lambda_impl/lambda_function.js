@@ -17,9 +17,9 @@ function sort(dict) {
     return items;
 }
 
-function calcSize(maxSizeInfo, size) {
-    let width = size.width;
-    let height = size.height;
+function calcSize(maxSizeInfo, props) {
+    let width = props.size.width;
+    let height = props.size.height;
     let ratio = 0;
     const maxSize = maxSizeInfo[1];
     if (width > maxSize) {
@@ -33,6 +33,11 @@ function calcSize(maxSizeInfo, size) {
         height = height * ratio;
         width = width * ratio;
     }
+
+    width = Math.floor(width);
+    height = Math.floor(height);
+
+    console.log('calculated w', width, 'h', height);
 
     return {
         name: maxSizeInfo[0],

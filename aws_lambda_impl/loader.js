@@ -6,13 +6,13 @@ const s3 = new aws.S3();
 class Loader {
     constructor(prefix, bucket) {
         this.bucket = bucket;
-        this.prefix = prefix;
+        this.prefix = prefix === undefined ||
+                        prefix === null ||
+                        prefix === '' ? '' : prefix;
     }
 
     download(digest) {
-        let key = this.prefix === undefined ||
-            this.prefix === null ||
-            this.prefix === '' ? digest : this.prefix + digest;
+        let key = this.prefix + digest;
         let bucket = this.bucket;
         console.log('Downloading', key, "from:", bucket);
         return new Promise(function(resolve, reject) {
@@ -27,7 +27,7 @@ class Loader {
     upload(info, original) {
         const file = fs.readFileSync(info.path);
         const digest = Loader.getHash(file);
-        let key = this.prefix === null || this.prefix === '' ? digest : this.prefix + digest;
+        let key = this.prefix + digest;
         console.log('Uploading', key);
         const params = {
             Bucket: this.bucket,
