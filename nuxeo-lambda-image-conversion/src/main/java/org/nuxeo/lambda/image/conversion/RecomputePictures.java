@@ -19,7 +19,7 @@
  */
 package org.nuxeo.lambda.image.conversion;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.nuxeo.ecm.automation.core.annotations.Operation;
 import org.nuxeo.ecm.automation.core.annotations.OperationMethod;
 import org.nuxeo.ecm.automation.core.annotations.Param;
@@ -41,7 +41,7 @@ public class RecomputePictures {
             throw new RuntimeException("No WorkManager available");
         }
 
-        if (!StringUtils.isBlank(query)) {
+        if (StringUtils.isNotBlank(query)) {
             ImagingRecomputeWork work = new ImagingRecomputeWork(query);
             workManager.schedule(work, WorkManager.Scheduling.IF_NOT_RUNNING_OR_SCHEDULED);
 
