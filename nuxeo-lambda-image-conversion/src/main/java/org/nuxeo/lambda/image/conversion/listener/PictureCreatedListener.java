@@ -17,31 +17,46 @@
  * Contributors:
  *     anechaev
  */
-package org.nuxeo.lambda.image.conversion;
+package org.nuxeo.lambda.image.conversion.listener;
 
-import static org.nuxeo.ecm.platform.picture.api.ImagingDocumentConstants.PICTURE_FACET;
-
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.DocumentModel;
+import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.model.Property;
 import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.core.event.EventContext;
 import org.nuxeo.ecm.core.event.EventListener;
 import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
+import static org.nuxeo.ecm.platform.picture.api.ImagingDocumentConstants.PICTURE_FACET;
 import org.nuxeo.ecm.platform.picture.api.ImagingService;
 import org.nuxeo.ecm.platform.picture.api.PictureConversion;
+import static org.nuxeo.ecm.platform.picture.listener.PictureViewsGenerationListener.DISABLE_PICTURE_VIEWS_GENERATION_LISTENER;
 import org.nuxeo.lambda.core.LambdaInput;
 import org.nuxeo.lambda.core.LambdaService;
+import static org.nuxeo.lambda.image.conversion.common.Constants.BUCKET;
+import static org.nuxeo.lambda.image.conversion.common.Constants.BUCKET_PREFIX;
+import static org.nuxeo.lambda.image.conversion.common.Constants.BUCKET_PREFIX_PROP;
+import static org.nuxeo.lambda.image.conversion.common.Constants.BUCKET_PROP;
+import static org.nuxeo.lambda.image.conversion.common.Constants.CONVERSIONS_SIZES;
+import static org.nuxeo.lambda.image.conversion.common.Constants.DEFAULT_LAMBDA_PICTURE_NAME;
+import static org.nuxeo.lambda.image.conversion.common.Constants.DIGEST_PROP;
+import static org.nuxeo.lambda.image.conversion.common.Constants.DOC_ID_PROP;
+import static org.nuxeo.lambda.image.conversion.common.Constants.FILENAME;
+import static org.nuxeo.lambda.image.conversion.common.Constants.LIFECYCLE;
+import static org.nuxeo.lambda.image.conversion.common.Constants.MIME_TYPE;
+import static org.nuxeo.lambda.image.conversion.common.Constants.NUXEO_LAMBDA_IMAGE_PROP;
+import static org.nuxeo.lambda.image.conversion.common.Constants.REPOSITORY_PROP;
 import org.nuxeo.runtime.api.Framework;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Listener used to schedule lambda task when Picture documents are updated.
@@ -49,26 +64,6 @@ import org.nuxeo.runtime.api.Framework;
 public class PictureCreatedListener implements EventListener {
 
     private static final Log log = LogFactory.getLog(PictureCreatedListener.class);
-
-    public static final String DISABLE_PICTURE_VIEWS_GENERATION_LISTENER = "disablePictureViewsGenerationListener";
-
-    public static final String DEFAULT_LAMBDA_PICTURE_NAME = "nuxeo-lambda-picture";
-
-    public static final String BUCKET = "bucket";
-
-    public static final String DIGEST_PROP = "digest";
-
-    public static final String MIME_TYPE = "mimeType";
-
-    public static final String FILENAME = "filename";
-
-    public static final String LIFECYCLE = "lifecycle";
-
-    public static final String CONVERSIONS_SIZES = "sizes";
-
-    public static final String DOC_ID_PROP = "docId";
-
-    public static final String REPOSITORY_PROP = "repository";
 
     @Override
     public void handleEvent(Event event) {
@@ -90,7 +85,7 @@ public class PictureCreatedListener implements EventListener {
             Blob blob = (Blob) content.getValue();
 
             if (blob == null) {
-                log.debug("Attempt to create Picture View with no data");
+                log.warn("Attempt to create Picture View with no data");
                 return;
             }
             String digest = blob.getDigest();
@@ -101,15 +96,28 @@ public class PictureCreatedListener implements EventListener {
 
             lambdaInput.put(LIFECYCLE, doc.getCurrentLifeCycleState());
             lambdaInput.put(DIGEST_PROP, digest);
-            lambdaInput.put(BUCKET, Framework.getProperty("nuxeo.s3storage.bucket"));
+
+            String bucket = Framework.getProperty(BUCKET_PROP);
+            if (StringUtils.isEmpty(bucket)) {
+                throw new NuxeoException("Cannot create lambda with no 'nuxeo.s3storage.bucket' property defined");
+            }
+
+            lambdaInput.put(BUCKET, bucket);
             lambdaInput.put(MIME_TYPE, blob.getMimeType());
             lambdaInput.put(FILENAME, blob.getFilename());
+
+            String prefix = Framework.getProperty(BUCKET_PREFIX_PROP);
+            if (StringUtils.isNoneEmpty(prefix)) {
+                lambdaInput.put(BUCKET_PREFIX, prefix);
+            }
 
             JSONObject conversionsJSON = new JSONObject();
             ImagingService imagingService = Framework.getService(ImagingService.class);
 
             List<PictureConversion> conversions = imagingService.getPictureConversions();
-            log.debug("Found " + conversions.size() + " PictureConversions");
+            if (log.isDebugEnabled()) {
+                log.debug("Found " + conversions.size() + " PictureConversions");
+            }
             conversions.forEach(conv -> {
                 try {
                     conversionsJSON.put(conv.getId(), conv.getMaxSize());
@@ -121,7 +129,7 @@ public class PictureCreatedListener implements EventListener {
             // Seems weird to convert a JSONObject to string before passing to AWS but it works...
             lambdaInput.put(CONVERSIONS_SIZES, conversionsJSON.toString());
 
-            String lambdaName = Framework.getProperty("nuxeo.lambda.image.conversion", DEFAULT_LAMBDA_PICTURE_NAME);
+            String lambdaName = Framework.getProperty(NUXEO_LAMBDA_IMAGE_PROP, DEFAULT_LAMBDA_PICTURE_NAME);
 
             try {
                 Map<String, Serializable> params = new HashMap<>();

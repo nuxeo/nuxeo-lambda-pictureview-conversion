@@ -17,15 +17,7 @@
  * Contributors:
  *     anechaev
  */
-package org.nuxeo.lambda.image.conversion;
-
-import static org.nuxeo.lambda.core.LambdaService.LAMBDA_RESPONSE_KEY;
-import static org.nuxeo.lambda.core.LambdaService.PARAMETERS_KEY;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+package org.nuxeo.lambda.image.conversion.listener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,7 +30,18 @@ import org.nuxeo.ecm.core.event.EventListener;
 import org.nuxeo.ecm.core.work.api.WorkManager;
 import org.nuxeo.ecm.platform.picture.PictureViewsGenerationWork;
 import org.nuxeo.lambda.core.LambdaService;
+import static org.nuxeo.lambda.core.LambdaService.LAMBDA_RESPONSE_KEY;
+import static org.nuxeo.lambda.core.LambdaService.PARAMETERS_KEY;
+import static org.nuxeo.lambda.image.conversion.common.Constants.DOC_ID_PROP;
+import static org.nuxeo.lambda.image.conversion.common.Constants.REPOSITORY_PROP;
+import org.nuxeo.lambda.image.conversion.common.ImageProperties;
+import org.nuxeo.lambda.image.conversion.work.PictureViewCreateWork;
 import org.nuxeo.runtime.api.Framework;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @since 9.3
@@ -58,10 +61,18 @@ public class LambdaResponseListener implements EventListener {
     public void handleEvent(Event event) {
         EventContext ctx = event.getContext();
         Map<String, Serializable> params = (Map<String, Serializable>) ctx.getProperty(PARAMETERS_KEY);
+        if (params == null || params.isEmpty()) {
+            log.warn("Couldn't get parameters from the context");
+            return;
+        }
+
+        WorkManager workManager = Framework.getService(WorkManager.class);
+        String repoName = (String) params.get(REPOSITORY_PROP);
+        String docId = (String) params.get(DOC_ID_PROP);
 
         if (LAMBDA_SUCCESS_EVENT_NAME.equals(event.getName())) {
             JSONObject object = (JSONObject) ctx.getProperty(LAMBDA_RESPONSE_KEY);
-            if (params == null || object == null) {
+            if (object == null) {
                 log.warn("Couldn't get any data from the context");
                 return;
             }
@@ -73,22 +84,15 @@ public class LambdaResponseListener implements EventListener {
                     props.add(new ImageProperties(json.getJSONObject(i)));
                 }
 
-                String repoName = (String) params.get(PictureCreatedListener.REPOSITORY_PROP);
-                String docId = (String) params.get(PictureCreatedListener.DOC_ID_PROP);
                 PictureViewCreateWork work = new PictureViewCreateWork(repoName, docId, XPATH, props);
-                WorkManager manager = Framework.getService(WorkManager.class);
-                manager.schedule(work, WorkManager.Scheduling.IF_NOT_SCHEDULED, true);
+                workManager.schedule(work);
             } catch (JSONException e) {
                 log.error(e);
             }
         } else if (LAMBDA_ERROR_EVENT_NAME.equals(event.getName())) {
             // fallback on default picture view generation
-            String docId = (String) params.get(PictureCreatedListener.DOC_ID_PROP);
-            String repoName = (String) params.get(PictureCreatedListener.REPOSITORY_PROP);
-
             PictureViewsGenerationWork work = new PictureViewsGenerationWork(repoName, docId, XPATH);
-            WorkManager workManager = Framework.getService(WorkManager.class);
-            workManager.schedule(work, WorkManager.Scheduling.IF_NOT_SCHEDULED, true);
+            workManager.schedule(work);
 
             LambdaService ls = Framework.getService(LambdaService.class);
             ls.getMetrics().markIntegrated();

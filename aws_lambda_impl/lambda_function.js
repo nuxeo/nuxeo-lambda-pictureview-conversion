@@ -54,7 +54,7 @@ exports.handler = (event, context, callback) => {
     sizes = sort(sizes);
 
     let caller = new Caller(event.host, event.cbId);
-    let loader = new Loader(event.prefix, event.input.bucket);
+    let loader = new Loader(event.input.prefix, event.input.bucket);
     let resizer = new Resizer();
 
     console.log('Starting call chain');

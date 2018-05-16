@@ -17,13 +17,14 @@
  * Contributors:
  *     anechaev
  */
-package org.nuxeo.lambda.image.conversion;
+package org.nuxeo.lambda.image.conversion.operation;
 
 import org.apache.commons.lang3.StringUtils;
 import org.nuxeo.ecm.automation.core.annotations.Operation;
 import org.nuxeo.ecm.automation.core.annotations.OperationMethod;
 import org.nuxeo.ecm.automation.core.annotations.Param;
 import org.nuxeo.ecm.core.work.api.WorkManager;
+import org.nuxeo.lambda.image.conversion.work.ImagingRecomputeWork;
 import org.nuxeo.runtime.api.Framework;
 
 @Operation(id = RecomputePictures.ID, description = "Recomputes Pictures retrieved based on a given query")
