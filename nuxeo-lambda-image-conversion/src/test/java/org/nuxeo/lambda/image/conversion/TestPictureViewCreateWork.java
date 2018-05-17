@@ -21,6 +21,16 @@ package org.nuxeo.lambda.image.conversion;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+
+import java.io.File;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import javax.inject.Inject;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.core.api.Blob;
@@ -40,17 +50,8 @@ import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
 import org.nuxeo.runtime.transaction.TransactionHelper;
 
-import javax.inject.Inject;
-import java.io.File;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
 @RunWith(FeaturesRunner.class)
-@Features({LambdaFeature.class})
+@Features(LambdaFeature.class)
 public class TestPictureViewCreateWork {
 
     @Inject
@@ -108,7 +109,7 @@ public class TestPictureViewCreateWork {
 
         assertNotNull(pictureDoc);
         PictureViewCreateWork work = new PictureViewCreateWork(session.getRepositoryName(), pictureDoc.getId(),
-                                                               "file:content", digests);
+                "file:content", digests);
         WorkManager manager = Framework.getService(WorkManager.class);
         manager.schedule(work, false);
         Thread.sleep(100);

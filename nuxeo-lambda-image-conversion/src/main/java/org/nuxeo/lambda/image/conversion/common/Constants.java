@@ -28,6 +28,10 @@ public class Constants {
 
     public static final String DEFAULT_LAMBDA_PICTURE_NAME = "nuxeo-lambda-picture";
 
+    public static final String LAMBDA_SUCCESS_EVENT_NAME = "afterLambdaPictureResponse";
+
+    public static final String LAMBDA_ERROR_EVENT_NAME = "lambdaPictureFailed";
+
     public static final String BUCKET = "bucket";
 
     public static final String DIGEST_PROP = "digest";

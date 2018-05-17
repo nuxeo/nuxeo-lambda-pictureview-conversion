@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2006-2018 Nuxeo (http://nuxeo.com/) and others.
+ * (C) Copyright 2018 Nuxeo (http://nuxeo.com/) and others.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,24 +19,28 @@
  */
 package org.nuxeo.lambda.image.conversion.common;
 
-import org.nuxeo.ecm.platform.test.PlatformFeature;
 import static org.nuxeo.lambda.image.conversion.common.Constants.BUCKET_PREFIX_PROP;
 import static org.nuxeo.lambda.image.conversion.common.Constants.BUCKET_PROP;
+
+import java.util.Properties;
+
+import org.nuxeo.ecm.platform.test.PlatformFeature;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
 import org.nuxeo.runtime.test.runner.SimpleFeature;
 
-import java.util.Properties;
-
 @Features(PlatformFeature.class)
-@Deploy({ "org.nuxeo.lambda.core", "org.nuxeo.lambda.image.conversion", "org.nuxeo.ecm.platform.picture.api",
-        "org.nuxeo.ecm.platform.picture.core", "org.nuxeo.ecm.platform.tag", "org.nuxeo.ecm.core.cache",
-        "org.nuxeo.ecm.automation.core" })
+@Deploy({"org.nuxeo.lambda.core", "org.nuxeo.lambda.image.conversion"})
+@Deploy({"org.nuxeo.ecm.platform.picture.api", "org.nuxeo.ecm.platform.picture.core"})
+@Deploy("org.nuxeo.ecm.platform.tag")
+@Deploy("org.nuxeo.ecm.core.cache")
+@Deploy("org.nuxeo.ecm.automation.core")
 public class LambdaFeature extends SimpleFeature {
 
-    public LambdaFeature() {}
+    public LambdaFeature() {
+    }
 
     @Override
     public void beforeRun(FeaturesRunner runner) throws Exception {

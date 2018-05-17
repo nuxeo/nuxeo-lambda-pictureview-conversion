@@ -19,6 +19,9 @@
  */
 package org.nuxeo.lambda.image.conversion.common;
 
+import java.util.Arrays;
+import java.util.concurrent.Executors;
+
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 import org.nuxeo.ecm.core.api.Blob;
@@ -32,16 +35,16 @@ import org.nuxeo.lambda.core.AbstractLambdaCaller;
 import org.nuxeo.lambda.core.LambdaService;
 import org.nuxeo.runtime.api.Framework;
 
-import java.util.Arrays;
-import java.util.concurrent.Executors;
-
+/**
+ * LambdaCaller Mocking class to imitate response from actual AWS Lambda.
+ */
 public class MemLambdaCaller extends AbstractLambdaCaller {
 
-    public static volatile String repositoryName = null;
+    public static volatile String repositoryName;
 
-    public static volatile boolean completed = false;
+    public static volatile boolean completed;
 
-    public static volatile Exception exception = null;
+    public static volatile Exception exception;
 
     @Override
     protected boolean call(String functionName, JSONObject input) {

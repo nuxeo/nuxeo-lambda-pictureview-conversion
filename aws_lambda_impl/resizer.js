@@ -8,12 +8,12 @@ class Resizer {
 
     constructor() {
         this.original = {
-          path: Resizer.getOriginalPath(),
-          size: {
-              name: 'OriginalJpeg',
-              width: 0,
-              height: 0
-          }
+            path: Resizer.getOriginalPath(),
+            size: {
+                name: 'OriginalJpeg',
+                width: 0,
+                height: 0
+            }
         };
     }
 
@@ -22,8 +22,8 @@ class Resizer {
     }
 
     getSize(path) {
-        return new Promise(function(resolve, reject) {
-            gm(path).size(function(err, size) {
+        return new Promise(function (resolve, reject) {
+            gm(path).size({bufferStream: true}, function (err, size) {
                 if (err) reject(err);
 
                 const width = size.width;
@@ -42,7 +42,7 @@ class Resizer {
     }
 
     transform(path, size) {
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
             console.log('Reading image from', path);
             let image = gm(path + '[0]');
             image = Resizer._transform(image, size);
@@ -83,7 +83,7 @@ class Resizer {
         });
     }
 
-    static _transform(image, size=null) {
+    static _transform(image, size = null) {
         if (size !== null) {
             image = image.resize(size.width, size.height);
         }

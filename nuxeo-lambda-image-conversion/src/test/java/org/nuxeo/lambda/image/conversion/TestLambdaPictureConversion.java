@@ -21,6 +21,13 @@ package org.nuxeo.lambda.image.conversion;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+
+import java.io.File;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+import javax.inject.Inject;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,14 +43,8 @@ import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
 import org.nuxeo.runtime.transaction.TransactionHelper;
 
-import javax.inject.Inject;
-import java.io.File;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-
 @RunWith(FeaturesRunner.class)
-@Features({ LambdaFeature.class })
+@Features(LambdaFeature.class)
 @Deploy("org.nuxeo.lambda.image.conversion.test:OSGI-INF/lambda-picture-config-override-contrib.xml")
 public class TestLambdaPictureConversion {
 
@@ -59,7 +60,7 @@ public class TestLambdaPictureConversion {
         MemLambdaCaller.repositoryName = session.getRepositoryName();
     }
 
-    @Test(timeout = 30 * 1000)
+    @Test(timeout = 30_000)
     @SuppressWarnings("unchecked")
     public void testLambdaPictureConversion() throws Exception {
         DocumentModel pictureDoc = session.createDocumentModel("/", "MyPicture", "File");

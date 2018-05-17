@@ -19,6 +19,18 @@
  */
 package org.nuxeo.lambda.image.conversion.listener;
 
+import static org.nuxeo.lambda.core.LambdaService.LAMBDA_RESPONSE_KEY;
+import static org.nuxeo.lambda.core.LambdaService.PARAMETERS_KEY;
+import static org.nuxeo.lambda.image.conversion.common.Constants.DOC_ID_PROP;
+import static org.nuxeo.lambda.image.conversion.common.Constants.LAMBDA_ERROR_EVENT_NAME;
+import static org.nuxeo.lambda.image.conversion.common.Constants.LAMBDA_SUCCESS_EVENT_NAME;
+import static org.nuxeo.lambda.image.conversion.common.Constants.REPOSITORY_PROP;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jettison.json.JSONArray;
@@ -30,29 +42,16 @@ import org.nuxeo.ecm.core.event.EventListener;
 import org.nuxeo.ecm.core.work.api.WorkManager;
 import org.nuxeo.ecm.platform.picture.PictureViewsGenerationWork;
 import org.nuxeo.lambda.core.LambdaService;
-import static org.nuxeo.lambda.core.LambdaService.LAMBDA_RESPONSE_KEY;
-import static org.nuxeo.lambda.core.LambdaService.PARAMETERS_KEY;
-import static org.nuxeo.lambda.image.conversion.common.Constants.DOC_ID_PROP;
-import static org.nuxeo.lambda.image.conversion.common.Constants.REPOSITORY_PROP;
 import org.nuxeo.lambda.image.conversion.common.ImageProperties;
 import org.nuxeo.lambda.image.conversion.work.PictureViewCreateWork;
 import org.nuxeo.runtime.api.Framework;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @since 9.3
  */
 public class LambdaResponseListener implements EventListener {
 
-    public static final Log log = LogFactory.getLog(LambdaResponseListener.class);
-
-    public static final String LAMBDA_SUCCESS_EVENT_NAME = "afterLambdaPictureResponse";
-
-    public static final String LAMBDA_ERROR_EVENT_NAME = "lambdaPictureFailed";
+    private static final Log log = LogFactory.getLog(LambdaResponseListener.class);
 
     protected static final String XPATH = "file:content";
 
@@ -62,7 +61,7 @@ public class LambdaResponseListener implements EventListener {
         EventContext ctx = event.getContext();
         Map<String, Serializable> params = (Map<String, Serializable>) ctx.getProperty(PARAMETERS_KEY);
         if (params == null || params.isEmpty()) {
-            log.warn("Couldn't get parameters from the context");
+            log.debug("Couldn't get parameters from the context");
             return;
         }
 
@@ -73,7 +72,7 @@ public class LambdaResponseListener implements EventListener {
         if (LAMBDA_SUCCESS_EVENT_NAME.equals(event.getName())) {
             JSONObject object = (JSONObject) ctx.getProperty(LAMBDA_RESPONSE_KEY);
             if (object == null) {
-                log.warn("Couldn't get any data from the context");
+                log.debug("Couldn't get any data from the context");
                 return;
             }
 
