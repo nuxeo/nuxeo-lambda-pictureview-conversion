@@ -6,7 +6,7 @@
     <listener name="pictureViewCreate"
               async="false"
               postCommit="false"
-              class="org.nuxeo.lambda.image.conversion.PictureCreatedListener"
+              class="org.nuxeo.lambda.image.conversion.listener.PictureCreatedListener"
               priority="20">
       <event>documentCreated</event>
       <event>documentModified</event>
@@ -16,7 +16,7 @@
     <listener name="lambdaResponse"
               async="false"
               postCommit="false"
-              class="org.nuxeo.lambda.image.conversion.LambdaResponseListener"
+              class="org.nuxeo.lambda.image.conversion.listener.LambdaResponseListener"
               priority="20">
       <event>afterLambdaPictureResponse</event>
       <event>lambdaPictureFailed</event>

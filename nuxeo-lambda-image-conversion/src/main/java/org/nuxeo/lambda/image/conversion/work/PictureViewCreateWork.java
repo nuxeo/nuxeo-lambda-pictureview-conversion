@@ -17,7 +17,7 @@
  * Contributors:
  *     anechaev
  */
-package org.nuxeo.lambda.image.conversion;
+package org.nuxeo.lambda.image.conversion.work;
 
 import static org.nuxeo.ecm.core.api.CoreSession.ALLOW_VERSION_WRITE;
 
@@ -42,6 +42,7 @@ import org.nuxeo.ecm.core.versioning.VersioningService;
 import org.nuxeo.lambda.core.LambdaService;
 import org.nuxeo.ecm.platform.picture.PictureViewsGenerationWork;
 import org.nuxeo.ecm.platform.picture.api.PictureView;
+import org.nuxeo.lambda.image.conversion.common.ImageProperties;
 import org.nuxeo.runtime.api.Framework;
 
 public class PictureViewCreateWork extends PictureViewsGenerationWork {

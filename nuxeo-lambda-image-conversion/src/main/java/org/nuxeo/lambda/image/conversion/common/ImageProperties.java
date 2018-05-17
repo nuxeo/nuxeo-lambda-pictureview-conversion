@@ -17,7 +17,7 @@
  * Contributors:
  *     anechaev
  */
-package org.nuxeo.lambda.image.conversion;
+package org.nuxeo.lambda.image.conversion.common;
 
 import java.io.Serializable;
 import java.util.Map;

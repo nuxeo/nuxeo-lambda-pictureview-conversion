@@ -29,7 +29,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
 import javax.inject.Inject;
 
 import org.junit.Test;
@@ -42,19 +41,17 @@ import org.nuxeo.ecm.core.api.impl.blob.StringBlob;
 import org.nuxeo.ecm.core.blob.BlobManager;
 import org.nuxeo.ecm.core.blob.BlobProvider;
 import org.nuxeo.ecm.core.blob.binary.BinaryManager;
-import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.ecm.core.work.api.WorkManager;
-import org.nuxeo.ecm.platform.test.PlatformFeature;
+import org.nuxeo.lambda.image.conversion.common.ImageProperties;
+import org.nuxeo.lambda.image.conversion.common.LambdaFeature;
+import org.nuxeo.lambda.image.conversion.work.PictureViewCreateWork;
 import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
 import org.nuxeo.runtime.transaction.TransactionHelper;
 
 @RunWith(FeaturesRunner.class)
-@Features({ CoreFeature.class, PlatformFeature.class })
-@Deploy({ "org.nuxeo.lambda.core", "org.nuxeo.ecm.platform.tag", "org.nuxeo.ecm.platform.picture.api",
-                "org.nuxeo.ecm.platform.picture.core", "org.nuxeo.ecm.core.cache", "org.nuxeo.ecm.automation.core" })
+@Features(LambdaFeature.class)
 public class TestPictureViewCreateWork {
 
     @Inject
@@ -112,7 +109,7 @@ public class TestPictureViewCreateWork {
 
         assertNotNull(pictureDoc);
         PictureViewCreateWork work = new PictureViewCreateWork(session.getRepositoryName(), pictureDoc.getId(),
-                                                               "file:content", digests);
+                "file:content", digests);
         WorkManager manager = Framework.getService(WorkManager.class);
         manager.schedule(work, false);
         Thread.sleep(100);

@@ -17,7 +17,7 @@
  *     Andrei Nechaev
  */
 
-package org.nuxeo.lambda.image.conversion;
+package org.nuxeo.lambda.image.conversion.work;
 
 import static org.nuxeo.ecm.platform.picture.api.ImagingDocumentConstants.PICTURE_FACET;
 
