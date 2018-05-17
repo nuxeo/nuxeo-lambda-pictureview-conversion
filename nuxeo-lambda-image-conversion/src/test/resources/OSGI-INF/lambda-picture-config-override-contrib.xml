@@ -3,7 +3,7 @@
 
   <extension target="org.nuxeo.lambda.core.LambdaService" point="lambdaConfiguration">
     <lambdaConfigs name="nuxeo-lambda-picture"
-                   class="org.nuxeo.lambda.image.conversion.TestLambdaPictureConversion$MemLambdaCaller">
+                   class="org.nuxeo.lambda.image.conversion.common.MemLambdaCaller">
       <onSuccessEvent>afterLambdaPictureResponse</onSuccessEvent>
       <onErrorEvent>lambdaPictureFailed</onErrorEvent>
     </lambdaConfigs>
