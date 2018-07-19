@@ -39,17 +39,14 @@ import org.nuxeo.ecm.core.blob.binary.BinaryManager;
 import org.nuxeo.ecm.core.blob.binary.CachingBinaryManager;
 import org.nuxeo.ecm.core.blob.binary.LazyBinary;
 import org.nuxeo.ecm.core.versioning.VersioningService;
-import org.nuxeo.lambda.core.LambdaService;
 import org.nuxeo.ecm.platform.picture.PictureViewsGenerationWork;
 import org.nuxeo.ecm.platform.picture.api.PictureView;
+import org.nuxeo.lambda.core.LambdaService;
 import org.nuxeo.lambda.image.conversion.common.ImageProperties;
 import org.nuxeo.runtime.api.Framework;
 
 public class PictureViewCreateWork extends PictureViewsGenerationWork {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
 
     private static final Log log = LogFactory.getLog(PictureViewCreateWork.class);
@@ -91,8 +88,8 @@ public class PictureViewCreateWork extends PictureViewsGenerationWork {
             m.put(PictureView.FIELD_TITLE, property.getName());
             m.put(PictureView.FIELD_DESCRIPTION, "");
             m.put(PictureView.FIELD_TAG, property.getName());
-            m.put(PictureView.FIELD_HEIGHT, property.getHeight().toString());
-            m.put(PictureView.FIELD_WIDTH, property.getWidth().toString());
+            m.put(PictureView.FIELD_HEIGHT, property.getHeight());
+            m.put(PictureView.FIELD_WIDTH, property.getWidth());
             m.put(PictureView.FIELD_FILENAME, filename);
             m.put(PictureView.FIELD_CONTENT, blob);
             m.put(PictureView.FIELD_INFO, (Serializable) property.toMap(filename));

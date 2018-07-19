@@ -38,7 +38,7 @@ import org.nuxeo.runtime.test.runner.FeaturesRunner;
 
 @RunWith(FeaturesRunner.class)
 @Features(PlatformFeature.class)
-@Deploy({"org.nuxeo.lambda.image.conversion", "org.nuxeo.ecm.automation.core"})
+@Deploy({ "org.nuxeo.lambda.image.conversion", "org.nuxeo.ecm.automation.core" })
 public class TestRecomputePicturesOperation {
 
     @Inject

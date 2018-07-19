@@ -22,9 +22,9 @@ package org.nuxeo.lambda.image.conversion.common;
 import java.io.Serializable;
 import java.util.Map;
 
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
 import org.nuxeo.ecm.platform.picture.api.ImageInfo;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 public class ImageProperties implements Serializable {
 
@@ -51,12 +51,12 @@ public class ImageProperties implements Serializable {
     public ImageProperties() {
     }
 
-    public ImageProperties(JSONObject object) throws JSONException {
-        this.name = object.getString(IMAGE_NAME);
-        this.digest = object.getString(IMAGE_DIGEST);
-        this.width = object.getInt(IMAGE_WIDTH);
-        this.height = object.getInt(IMAGE_HEIGHT);
-        this.length = object.getInt(IMAGE_LENGTH);
+    public ImageProperties(JsonNode object) {
+        this.name = object.get(IMAGE_NAME).asText();
+        this.digest = object.get(IMAGE_DIGEST).asText();
+        this.width = object.get(IMAGE_WIDTH).asInt();
+        this.height = object.get(IMAGE_HEIGHT).asInt();
+        this.length = object.get(IMAGE_LENGTH).asInt();
     }
 
     public String getName() {
@@ -121,8 +121,8 @@ public class ImageProperties implements Serializable {
 
         ImageProperties imageProperties = (ImageProperties) o;
 
-        return name.equals(imageProperties.name) && digest.equals(imageProperties.digest) && width.equals(
-                imageProperties.width) && height.equals(imageProperties.height);
+        return name.equals(imageProperties.name) && digest.equals(imageProperties.digest)
+                && width.equals(imageProperties.width) && height.equals(imageProperties.height);
     }
 
     @Override

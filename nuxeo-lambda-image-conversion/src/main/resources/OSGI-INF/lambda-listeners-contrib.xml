@@ -27,8 +27,8 @@
 
   <extension target="org.nuxeo.ecm.core.event.EventServiceComponent"
              point="listener">
-    <listener name="pictureViewListener" enabled="false" />
-    <listener name="pictureViewsGenerationListener" enabled="false" />
+    <listener name="pictureViewListener" enabled="false"/>
+    <listener name="pictureViewsGenerationListener" enabled="false"/>
   </extension>
 
 </component>
