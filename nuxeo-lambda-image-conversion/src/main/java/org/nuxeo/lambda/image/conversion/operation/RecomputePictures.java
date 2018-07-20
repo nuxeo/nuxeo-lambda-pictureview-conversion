@@ -52,4 +52,3 @@ public class RecomputePictures {
         return false;
     }
 }
-

@@ -22,8 +22,6 @@ package org.nuxeo.lambda.image.conversion.common;
 import java.util.Arrays;
 import java.util.concurrent.Executors;
 
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONObject;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.impl.blob.StringBlob;
@@ -34,6 +32,10 @@ import org.nuxeo.ecm.core.blob.binary.BinaryManager;
 import org.nuxeo.lambda.core.AbstractLambdaCaller;
 import org.nuxeo.lambda.core.LambdaService;
 import org.nuxeo.runtime.api.Framework;
+
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * LambdaCaller Mocking class to imitate response from actual AWS Lambda.
@@ -47,10 +49,10 @@ public class MemLambdaCaller extends AbstractLambdaCaller {
     public static volatile Exception exception;
 
     @Override
-    protected boolean call(String functionName, JSONObject input) {
+    protected boolean call(String functionName, ObjectNode input) {
         // create the view in an async way
         Executors.newSingleThreadExecutor().submit(() -> {
-            String callbackId = input.optString(LambdaService.CALLBACK_PROP);
+            String callbackId = input.get(LambdaService.CALLBACK_PROP).asText();
             LambdaService lambdaService = Framework.getService(LambdaService.class);
             try {
                 // sleep a bit to let AbstractLambdaCaller put callback in K/V store
@@ -70,27 +72,28 @@ public class MemLambdaCaller extends AbstractLambdaCaller {
                 Blob blob3 = new StringBlob("viewTree");
                 blob3.setFilename("viewTree.png");
 
-                JSONArray properties = new JSONArray();
+                ArrayNode properties = new ArrayNode(JsonNodeFactory.instance);
                 for (Blob blob : Arrays.asList(blob1, blob2, blob3)) {
                     // save the binary
                     Binary binary = binaryManager.getBinary(blob);
                     // build the response
-                    JSONObject property = new JSONObject();
+                    ObjectNode property = new ObjectNode(JsonNodeFactory.instance);
                     property.put(ImageProperties.IMAGE_DIGEST, binary.getDigest());
                     property.put(ImageProperties.IMAGE_WIDTH, 100);
                     property.put(ImageProperties.IMAGE_HEIGHT, 100);
                     property.put(ImageProperties.IMAGE_NAME, blob.getFilename());
                     property.put(ImageProperties.IMAGE_LENGTH, 1001);
-                    properties.put(property);
+                    properties.add(property);
                 }
 
-                JSONObject response = new JSONObject();
+                ObjectNode response = new ObjectNode(JsonNodeFactory.instance);
                 response.put("images", properties);
                 lambdaService.onResult(callbackId, LambdaService.LambdaStatus.SUCCESS, response);
 
             } catch (Throwable e) {
                 exception = new NuxeoException(e);
-                lambdaService.onResult(callbackId, LambdaService.LambdaStatus.ERROR, new JSONObject());
+                lambdaService.onResult(callbackId, LambdaService.LambdaStatus.ERROR,
+                        new ObjectNode(JsonNodeFactory.instance));
             } finally {
                 completed = true;
             }

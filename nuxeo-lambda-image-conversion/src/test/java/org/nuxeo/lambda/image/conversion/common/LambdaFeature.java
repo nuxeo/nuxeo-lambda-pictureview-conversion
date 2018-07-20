@@ -32,8 +32,8 @@ import org.nuxeo.runtime.test.runner.FeaturesRunner;
 import org.nuxeo.runtime.test.runner.SimpleFeature;
 
 @Features(PlatformFeature.class)
-@Deploy({"org.nuxeo.lambda.core", "org.nuxeo.lambda.image.conversion"})
-@Deploy({"org.nuxeo.ecm.platform.picture.api", "org.nuxeo.ecm.platform.picture.core"})
+@Deploy({ "org.nuxeo.lambda.core", "org.nuxeo.lambda.image.conversion" })
+@Deploy({ "org.nuxeo.ecm.platform.picture.api", "org.nuxeo.ecm.platform.picture.core" })
 @Deploy("org.nuxeo.ecm.platform.tag")
 @Deploy("org.nuxeo.ecm.core.cache")
 @Deploy("org.nuxeo.ecm.automation.core")

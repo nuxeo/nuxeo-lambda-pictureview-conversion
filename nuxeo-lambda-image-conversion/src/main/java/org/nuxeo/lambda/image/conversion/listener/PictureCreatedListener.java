@@ -44,8 +44,6 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.NuxeoException;
@@ -59,6 +57,9 @@ import org.nuxeo.ecm.platform.picture.api.PictureConversion;
 import org.nuxeo.lambda.core.LambdaInput;
 import org.nuxeo.lambda.core.LambdaService;
 import org.nuxeo.runtime.api.Framework;
+
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Listener used to schedule lambda task when Picture documents are updated.
@@ -117,8 +118,7 @@ public class PictureCreatedListener implements EventListener {
 
         String bucket = Framework.getProperty(BUCKET_PROP);
         if (StringUtils.isEmpty(bucket)) {
-            throw new NuxeoException("Cannot create lambda with no "
-                    + BUCKET_PREFIX_PROP + " property defined");
+            throw new NuxeoException("Cannot create lambda with no " + BUCKET_PREFIX_PROP + " property defined");
         }
 
         lambdaInput.put(BUCKET, bucket);
@@ -129,16 +129,15 @@ public class PictureCreatedListener implements EventListener {
         if (StringUtils.isNoneEmpty(prefix)) {
             lambdaInput.put(BUCKET_PREFIX, prefix);
         }
-
-        JSONObject convJSON = getConversions();
+        ObjectNode convJSON = getConversions();
         // Seems weird to convert a JSONObject to string before passing to AWS but it is the way it works...
         lambdaInput.put(CONVERSIONS_SIZES, convJSON.toString());
 
         return lambdaInput;
     }
 
-    protected JSONObject getConversions() {
-        JSONObject conversionsJSON = new JSONObject();
+    protected ObjectNode getConversions() {
+        ObjectNode conversionsJSON = new ObjectNode(JsonNodeFactory.instance);
         ImagingService imagingService = Framework.getService(ImagingService.class);
 
         List<PictureConversion> conversions = imagingService.getPictureConversions();
@@ -146,11 +145,7 @@ public class PictureCreatedListener implements EventListener {
             log.debug("Found " + conversions.size() + " PictureConversions");
         }
         conversions.forEach(conv -> {
-            try {
-                conversionsJSON.put(conv.getId(), conv.getMaxSize());
-            } catch (JSONException e) {
-                log.error("Couldn't put conversion into JSON", e);
-            }
+            conversionsJSON.put(conv.getId(), conv.getMaxSize());
         });
 
         return conversionsJSON;
