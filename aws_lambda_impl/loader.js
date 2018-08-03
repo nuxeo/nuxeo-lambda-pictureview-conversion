@@ -7,11 +7,16 @@ class Loader {
     constructor(prefix, bucket) {
         this.bucket = bucket;
         this.prefix = prefix === undefined ||
-                        prefix === null ||
-                        prefix === '' ? '' : prefix;
+                prefix === null ||
+                prefix === '' ? '' : prefix;
+
     }
 
     download(digest) {
+        // ugly workaround for NXP-25533, DO NOT merge
+        if(digest.indexOf('default:') >= 0){
+            digest = digest.slice(8);
+        }
         let key = this.prefix + digest;
         let bucket = this.bucket;
         console.log('Downloading', key, "from:", bucket);
