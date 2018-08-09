@@ -20,6 +20,7 @@
 package org.nuxeo.lambda.image.conversion.work;
 
 import static org.nuxeo.ecm.core.api.CoreSession.ALLOW_VERSION_WRITE;
+import static org.nuxeo.ecm.platform.picture.api.ImagingDocumentConstants.PICTURE_INFO_PROPERTY;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -53,6 +54,8 @@ public class PictureViewCreateWork extends PictureViewsGenerationWork {
 
     public static final String CATEGORY_PICTURE_LAMBDA_GENERATION = "pictureViewWithLambdaGeneration";
 
+    public static final String ORIGINAL_JPEG = "OriginalJpeg";
+
     private List<ImageProperties> properties;
 
     public PictureViewCreateWork(String repositoryName, String docId, String xpath, List<ImageProperties> properties) {
@@ -83,6 +86,10 @@ public class PictureViewCreateWork extends PictureViewsGenerationWork {
 
             // XXX here you need to get more info from the lambda
             // probably passing some JSON from the lambda back to the Callback
+
+            if (ORIGINAL_JPEG.equals(property.getName())) {
+                document.setPropertyValue(PICTURE_INFO_PROPERTY, (Serializable) property.toMap(filename));
+            }
 
             Map<String, Serializable> m = new HashMap<>();
             m.put(PictureView.FIELD_TITLE, property.getName());

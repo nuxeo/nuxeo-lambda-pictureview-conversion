@@ -21,6 +21,8 @@ package org.nuxeo.lambda.image.conversion;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.nuxeo.ecm.platform.picture.api.ImagingDocumentConstants.PICTURE_INFO_PROPERTY;
+import static org.nuxeo.lambda.image.conversion.work.PictureViewCreateWork.ORIGINAL_JPEG;
 
 import java.io.File;
 import java.io.Serializable;
@@ -71,7 +73,10 @@ public class TestPictureViewCreateWork {
         Blob blob3 = new StringBlob("viewTree");
         blob3.setFilename("viewTree.png");
 
-        List<Blob> blobs = Arrays.asList(blob1, blob2, blob3);
+        Blob originalJpeg = new StringBlob(ORIGINAL_JPEG);
+        blob3.setFilename(ORIGINAL_JPEG);
+
+        List<Blob> blobs = Arrays.asList(blob1, blob2, blob3, originalJpeg);
         BinaryManager binaryManager = bp.getBinaryManager();
 
         List<ImageProperties> properties = new ArrayList<>();
@@ -118,6 +123,9 @@ public class TestPictureViewCreateWork {
         manager.awaitCompletion(3000, TimeUnit.MILLISECONDS);
 
         pictureDoc = session.getDocument(pictureDoc.getRef());
+
+        Map<String, Object> pictureInfos = (Map<String, Object>) pictureDoc.getPropertyValue(PICTURE_INFO_PROPERTY);
+        assertEquals(100L, pictureInfos.get("width"));
 
         List<Map<String, Serializable>> views = (List<Map<String, Serializable>>) pictureDoc.getPropertyValue(
                 "picture:views");
