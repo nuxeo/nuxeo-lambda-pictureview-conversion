@@ -13,7 +13,7 @@ class Caller {
         json.images = meta;
         json.error = error;
 
-        console.log('JSON:', json);
+        console.log('JSON:' + JSON.stringify(json));
         const path = this.buildPath(success);
         console.log("request:", path);
         return new Promise(function (resolve, reject) {
